@@ -1,6 +1,6 @@
 {
-  "name": "Gaff",
-  "version": "2.0.0",
+  "name": "CARL-BOT 🐢",
+  "version": "1.0.0",
   "description": "Lightweight WhatsApp Multi-Device bot built with Baileys.",
   "main": "index.js",
   "type": "module",
