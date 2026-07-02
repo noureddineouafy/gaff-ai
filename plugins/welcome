@@ -1,0 +1,51 @@
+let handler = async (m, { conn, usedPrefix, command }) => {
+    const botName = conn.user.name || 'YUJI BOT'
+    const imgUrl = 'https://files.catbox.moe/i8ntv0.jpg'
+    
+    let rules = `┌───〔 *📜 قوانين ${botName}* 〕───
+│
+│ 👋 مرحباً بك @${m.sender.split('@')[0]}
+│
+│ ⚠️ *الرجاء قراءة القوانين جيداً*
+│
+├─ قوانين الاستخدام ─
+│
+│ 1️⃣ *ممنوع الاتصال بالبوت*
+│    الاتصال = بلوك تلقائي ❌
+│
+│ 2️⃣ *ممنوع السبام*
+│    لا ترسل أوامر كثيرة ورا بعض
+│
+│ 3️⃣ *ممنوع الاستخدام المطول*
+│    استعمل البوت باعتدال، لا تتركه شغال 24/7
+│
+│ 4️⃣ *ممنوع المحتوى المخالف*
+│    صور/فيديوهات +18 أو عنصرية = بلوك
+│
+│ 5️⃣ *احترام الأعضاء والمشرفين*
+│    أي إساءة = طرد من البوت
+│
+├─ ملاحظات مهمة ─
+│
+│ ✦ البوت مجاني 100% 
+│ ✦ إذا واجهت مشكلة اكتب ${usedPrefix}report
+│ ✦ للاطلاع على الأوامر اكتب ${usedPrefix}menu
+│
+└──────────────────
+*© ${new Date().getFullYear()} YUJI TECH*
+
+_باستخدامك للبوت أنت توافق على هذه القوانين_`
+
+    await conn.sendMessage(m.chat, {
+        image: { url: imgUrl },
+        caption: rules,
+        mentions: [m.sender]
+    }, { quoted: m })
+}
+
+handler.help = ['welcome', 'rules', 'قوانين']
+handler.tags = ['main', 'info']
+handler.command = /^(welcome|rules|قوانين)$/i
+handler.exp = 5
+
+export default handler
