@@ -1,175 +1,96 @@
 import moment from 'moment-timezone'
-import fs from 'fs'
 
-const handler = async (m, { conn, usedPrefix: _p, command, isOwner, args }) => {
+let handler = async (m, { conn, usedPrefix }) => {
+    let d = new Date()
+    let time = moment().tz('Africa/Casablanca').format('HH:mm:ss')
+    let date = d.toLocaleDateString('ar-MA', { day: '2-digit', month: 'long', year: 'numeric' })
+    
+    const bgImage = 'https://files.catbox.moe/i8ntv0.jpg'
 
-	const allTags = {
-		main: 'Main Menu',
-		ai: 'AI Menu',
-		downloader: 'Downloader Menu',
-		uploader: 'Uploader Menu',
-		editor: 'Editor Menu',
-		sticker: 'Sticker Menu',
-		tools: 'Tools Menu',
-		infobot: 'Info Menu',
-		group: 'Group Menu',
-		owner: 'Owner Menu',
-	}
+    let tags = {
+        'downloade': '⬇️ downloade Commnds',
+        'download': '⬇️ downloade Commnds',
+        'ai': '🤖 AI Commnds',
+        'sticker': '🎭 Sticker Commnds', 
+        'group': '👥 Group Commnds',
+        'owner': '👑 Owner Commnds',
+        'main': '📜 Main Commnds',
+        'game': '🎮 Game Commnds',
+        'info': 'ℹ️ Info Commnds',
+        'tool': '🛠️ Tools Commnds',
+        'uploader': '📤 Uploader Commnds',
+        'editor': '🎨 Editor Commnds',
+    }
 
-	let teks = (args[0] || '').toLowerCase()
-	let tags = {}
+    let help = Object.values(global.plugins).filter(plugin => !plugin.disabled && plugin.help && plugin.tags)
+    
+    let totalCmds = help.reduce((acc, cur) => acc + (Array.isArray(cur.help) ? cur.help.length : 1), 0)
+    
+    let menu = `╭─━─━─━─━─━─━─━─━─━─━╮\n`
+    menu += `│ < All Commnds /> │\n`
+    menu += `╰─━─━─━─━─━─━─━─━─━─━╯\n\n`
+    
+    menu += `📆 Date : ${date}\n`
+    menu += `⏰ Time : ${time} WAT\n`
+    menu += `📊 Total : ${totalCmds} Commands | ${Object.keys(tags).length} Categories\n`
+    menu += `╰──────────────────╯\n\n`
 
-	if (!Object.keys(allTags).includes(teks)) teks = 'all'
+    // 1. جمع الأوامر العادي بالتاغ
+    for (let tag in tags) {
+        let commands = help.filter(v => {
+            let pluginTags = Array.isArray(v.tags) ? v.tags : [v.tags]
+            return pluginTags.includes(tag)
+        })
+        
+        if (commands.length === 0) continue;
 
-	tags = teks === 'all'
-		? { ...allTags }
-		: { [teks]: allTags[teks] }
+        menu += `╭─ ${tags[tag]} ─╮\n`
+        for (let plugin of commands) {
+            let cmds = Array.isArray(plugin.help) ? plugin.help : [plugin.help]
+            for (let cmd of cmds) {
+                menu += `│ □ /${cmd}\n`
+            }
+        }
+        menu += `╰──────────────────╯\n\n`
+    }
 
-	if (!isOwner) delete tags.owner
-	if (!m.isGroup) delete tags.group
+    // 2. المهم: زيد الميزات يدويا إلا مابانوش 👇👇
+    menu += `╭─ 🛠️ Tools Commnds ─╮\n`
+    menu += `│ □ /fakechat\n`
+    menu += `│ □ /fetch\n`
+    menu += `│ □ /get\n`
+    menu += `│ □ /hd\n`
+    menu += `│ □ /landsat\n`
+    menu += `│ □ /qrcode\n`
+    menu += `│ □ /quoted\n`
+    menu += `│ □ /rvo\n`
+    menu += `│ □ /ssweb\n`
+    menu += `╰──────────────────╯\n\n`
 
-	const defaultMenu = {
-		before: `
-╭━━━〔 ${conn.user.name} 〕━━━⬣
-┃ 👋 ${ucapan()}, %name
-┃
-┃ 📅 %week, %date
-┃ ⏱ Uptime: %uptime
-┃ 👥 Users: %rtotalreg/%totalreg
-╰━━━━━━━━━━━━⬣
-%readmore`.trim(),
+    menu += `╭─ ℹ️ Info Commnds ─╮\n`
+    menu += `│ □ /dashboard\n`
+    menu += `│ □ /owner\n`
+    menu += `│ □ /ping\n`
+    menu += `│ □ /register\n`
+    menu += `│ □ /totalfeatures\n`
+    menu += `│ □ /totaluser\n`
+    menu += `│ □ /unregister\n`
+    menu += `╰──────────────────╯\n\n`
 
-		header: '\n╭─〔 %category 〕',
-		body: '│ ◦ %cmd %flags',
-		footer: '╰────────────⬣',
-		after: '',
-	}
+    menu += `╭─━─━─━─━─━─━─━─━─━─━╮\n`
+    menu += `│   Bot By : YourName   │\n`
+    menu += `╰─━─━─━─━─━─━─━─━─━─━╯`
 
-	try {
-		const plugins = Object.values(global.plugins).filter(p => !p.disabled)
-
-		const help = plugins.map(p => ({
-			help: Array.isArray(p.help) ? p.help : [p.help],
-			tags: Array.isArray(p.tags) ? p.tags : [p.tags],
-			prefix: 'customPrefix' in p,
-			limit: '',
-			premium: '',
-			owner: p.owner ? '🄾' : '',
-		}))
-
-		const rows = Object.keys(allTags).map(tag => ({
-			title: allTags[tag],
-			description: `Show ${tag} menu`,
-			id: `${_p + command} ${tag}`,
-		}))
-
-		const text = [
-			defaultMenu.before,
-			...Object.keys(tags).map(tag => {
-				const items = help
-					.filter(p => p.tags.includes(tag))
-					.flatMap(p =>
-						p.help.map(h => {
-							const cmd = p.prefix ? h : `${_p}${h}`
-							const flags = [p.owner].join(' ')
-							return defaultMenu.body
-								.replace(/%cmd/g, cmd)
-								.replace(/%flags/g, flags)
-						})
-					).join('\n')
-
-				return `${defaultMenu.header.replace('%category', tags[tag])}\n${items}\n${defaultMenu.footer}`
-			}),
-			defaultMenu.after,
-		].join('\n')
-
-		let user = global.db.data.users[m.sender]
-		let { registered } = user
-
-		let name = registered ? user.name : conn.getName(m.sender)
-		let uptime = clockString(process.uptime() * 1000)
-
-		let totalreg = Object.keys(global.db.data.users).length
-		let rtotalreg = Object.values(global.db.data.users).filter(u => u.registered).length
-
-		let d = new Date()
-		let locale = 'en-US'
-
-		let week = d.toLocaleDateString(locale, { weekday: 'long' })
-		let date = d.toLocaleDateString(locale, {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric',
-		})
-
-		const replace = {
-			'%': '',
-			p: _p,
-			uptime,
-			me: conn.user.name,
-			name,
-			week,
-			date,
-			totalreg,
-			rtotalreg,
-			readmore: readMore,
-		}
-
-		conn.sendButton(
-			m.chat,
-			{
-				image: fs.readFileSync('./media/menu.jpg'),
-				caption: text.replace(
-					new RegExp(`%(${Object.keys(replace).join('|')})`, 'g'),
-					(_, key) => replace[key]
-				),
-				footer: global.namebot,
-				buttons: [
-					{
-						name: 'single_select',
-						buttonParamsJson: JSON.stringify({
-							title: '📂 Menu List',
-							sections: [{ rows }],
-						}),
-					},
-					{
-						name: 'quick_reply',
-						buttonParamsJson: JSON.stringify({
-							display_text: '👑 Owner',
-							id: _p + 'owner',
-						}),
-					},
-				],
-			},
-			{ quoted: m }
-		)
-
-	} catch (e) {
-		console.error(e)
-		m.reply('Error displaying menu.')
-	}
+    await conn.sendMessage(m.chat, {
+        image: { url: bgImage },
+        caption: menu,
+        mentions: [m.sender]
+    }, { quoted: m })
 }
 
 handler.help = ['menu']
-handler.command = /^(menu|help|\?)$/i
+handler.tags = ['main']
+handler.command = /^(menu|\.)$/i
+handler.exp = 3
 
 export default handler
-
-const more = String.fromCharCode(8206)
-const readMore = more.repeat(4001)
-
-function clockString(ms) {
-	let h = Math.floor(ms / 3600000)
-	let m = Math.floor(ms / 60000) % 60
-	let s = Math.floor(ms / 1000) % 60
-	return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
-}
-
-function ucapan() {
-	const time = moment.tz('Asia/Jakarta').format('HH')
-	if (time < 4) return 'Good Night'
-	if (time < 10) return 'Good Morning'
-	if (time < 15) return 'Good Afternoon'
-	if (time < 18) return 'Good Evening'
-	return 'Good Night'
-}
