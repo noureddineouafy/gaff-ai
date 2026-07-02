@@ -8,18 +8,18 @@ global.ButtonV2 = ButtonV2;
 global.Carousel = Carousel;
 global.AIRich = AIRich;
 
-global.pairingNumber = 212666774170;
+global.pairingNumber = رقم البوت;
 global.owner = [
-  ['212709138520', 'noureddine Ouafy', true],
+  ['212709138520', 'YUJI TECH', true],
   ['', 'Owner 2', true],
 ];
 
-global.namebot = 'gaff ai';
-global.author = 'Noureddine ouafy';
-global.source = 'https://chat.whatsapp.com/Hp3R0WWD5G8Li9HKBU6fn3';
+global.namebot = 'CARL-BOT';
+global.author = 'JUJI TECH';
+global.source = 'https://whatsapp.com/channel/0029Vb8IPnK5vKAA89PXs426';
 
-global.wait = 'Loading... | جاري الانتظار';
-global.eror = 'There is an error... | وقع خطأ';
+global.wait = 'Loading...';
+global.eror = 'There is an error...';
 
 global.pakasir = {
 	slug: 'kilersbotz',
