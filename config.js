@@ -8,7 +8,7 @@ global.ButtonV2 = ButtonV2;
 global.Carousel = Carousel;
 global.AIRich = AIRich;
 
-global.pairingNumber = 212666774170;
+global.pairingNumber =212709138520;
 global.owner = [
   ['212709138520', 'YUJI TECH', true],
   ['', 'Owner 2', true],
